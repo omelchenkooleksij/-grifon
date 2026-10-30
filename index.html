@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f5f2">
+<title>Картотека</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1c1c1a;--mute:#8a8983;--line:#e6e4de;--acc:#2f5d50;--accink:#fff;--danger:#b3372f}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#212120;--ink:#ecebe6;--mute:#8d8c86;--line:#32312e;--acc:#7fb5a3;--accink:#10201b;--danger:#e0776e}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:8px;padding:14px 16px 10px;padding-top:calc(14px + env(safe-area-inset-top))}
+header h1{flex:1;margin:0;font-size:22px;font-weight:650;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{border:0;background:none;color:var(--ink);font-size:15px;padding:8px 10px;border-radius:10px;cursor:pointer}
+.ib:active{background:var(--line)}
+main{padding:0 16px 110px;max-width:640px;margin:auto}
+.search{width:100%;margin:0 0 12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit}
+.row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer}
+.row:active{background:var(--line)}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .t span{color:var(--mute);font-size:14px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--line);color:var(--mute);display:grid;place-items:center;font-weight:600;flex:none;object-fit:cover}
+.sq{border-radius:12px}
+.empty{text-align:center;color:var(--mute);padding:60px 20px}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:var(--accink);font-size:30px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+dialog{border:0;padding:0;width:min(520px,100%);max-height:92vh;margin:auto auto 0;border-radius:20px 20px 0 0;background:var(--bg);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+form{padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+form h2{margin:0 0 4px;font-size:19px}
+label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:4px}
+input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+input:focus,textarea:focus,.search:focus{outline:2px solid var(--acc);outline-offset:-1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo{display:flex;align-items:center;gap:14px}
+.photo .av{width:84px;height:84px;font-size:26px}
+.btns{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;border:0;border-radius:12px;padding:13px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink)}
+.btn.p{background:var(--acc);color:var(--accink)}
+.btn.d{color:var(--danger);flex:none}
+.link{color:var(--acc);font-size:14px;background:none;border:0;padding:0;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+</style>
+</head>
+<body>
+<header id="hd"></header>
+<main id="app"></main>
+<button class="fab" id="fab" aria-label="Добавить">+</button>
+<dialog id="dlg"></dialog>
+
+<script>
+const KEY='kartoteka_v1';
+let db={depts:[]},cur=null,q='';
+try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('Не удалось сохранить: память заполнена. Сделайте экспорт и удалите лишние фото.')}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const dept=()=>db.depts.find(d=>d.id===cur);
+const ini=p=>((p.first||'')[0]||'')+((p.last||'')[0]||'')||'?';
+const avatar=(p,cls='')=>p.photo?`<img class="av ${cls}" src="${p.photo}" alt="">`:`<div class="av ${cls}">${esc(ini(p).toUpperCase())}</div>`;
+const ageWord=n=>{n=+n;const m=n%100,k=n%10;return (m>10&&m<15)?'лет':k==1?'год':(k>1&&k<5)?'года':'лет'};
+
+function render(){
+  const app=$('app'),hd=$('hd');
+  if(!cur){
+    hd.innerHTML=`<h1>Отделы</h1><button class="ib" id="menu">Копия</button>`;
+    app.innerHTML=db.depts.length?db.depts.map(d=>`<div class="row" data-d="${d.id}"><div class="av sq">${esc((d.name[0]||'?').toUpperCase())}</div><div class="t"><b>${esc(d.name)}</b><span>${d.people.length} чел.</span></div></div>`).join(''):`<div class="empty">Пока нет отделов.<br>Нажмите «+», чтобы создать первый.</div>`;
+    app.querySelectorAll('[data-d]').forEach(e=>e.onclick=()=>{cur=e.dataset.d;q='';render();scrollTo(0,0)});
+    $('menu').onclick=backupDlg;
+  }else{
+    const d=dept();
+    hd.innerHTML=`<button class="ib" id="back">‹ Назад</button><h1>${esc(d.name)}</h1><button class="ib" id="ren">Изменить</button>`;
+    const list=d.people.filter(p=>[p.first,p.last,p.role,p.phone,p.email,p.note].join(' ').toLowerCase().includes(q.toLowerCase()));
+    app.innerHTML=(d.people.length>4?`<input class="search" id="q" placeholder="Поиск" value="${esc(q)}">`:'')+
+      (list.length?list.map(p=>`<div class="row" data-p="${p.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc([p.role,p.age?p.age+' '+ageWord(p.age):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div></div>`).join(''):`<div class="empty">${d.people.length?'Ничего не найдено':'В отделе пока никого.<br>Нажмите «+», чтобы добавить сотрудника.'}</div>`);
+    $('back').onclick=()=>{cur=null;render()};
+    $('ren').onclick=()=>deptDlg(d);
+    app.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>personDlg(d.people.find(p=>p.id===e.dataset.p)));
+    const s=$('q');if(s)s.oninput=()=>{q=s.value;const pos=s.selectionStart;render();const n=$('q');n.focus();n.setSelectionRange(pos,pos)};
+  }
+}
+
+const dlg=$('dlg');
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+$('fab').onclick=()=>cur?personDlg():deptDlg();
+
+function deptDlg(d){
+  dlg.innerHTML=`<form method="dialog" id="f"><h2>${d?'Изменить отдел':'Новый отдел'}</h2>
+  <label>Название<input name="n" required maxlength="60" placeholder="Например, Склад" value="${esc(d?.name||'')}"></label>
+  <div class="btns">${d?'<button type="button" class="btn d" id="del">Удалить</button>':''}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`;
+  dlg.showModal();
+  $('cx').onclick=()=>dlg.close();
+  if(d)$('del').onclick=()=>{if(confirm(`Удалить отдел «${d.name}» и всех сотрудников в нём?`)){db.depts=db.depts.filter(x=>x!==d);cur=null;save();dlg.close();render()}};
+  $('f').onsubmit=e=>{const n=new FormData(e.target).get('n').trim();if(!n)return;if(d)d.name=n;else db.depts.push({id:uid(),name:n,people:[]});save();render()};
+}
+
+function personDlg(p){
+  const isNew=!p;let photo=p?.photo||'';
+  const v=k=>esc(p?.[k]||'');
+  dlg.innerHTML=`<form method="dialog" id="f" style="overflow:auto;max-height:92vh"><h2>${isNew?'Новый сотрудник':'Сотрудник'}</h2>
+  <div class="photo"><div id="pv"></div><div style="display:flex;flex-direction:column;gap:6px"><button type="button" class="link" id="pick">Выбрать фото</button><button type="button" class="link" id="rm" style="color:var(--danger)">Убрать фото</button></div><input type="file" id="file" accept="image/*" hidden></div>
+  <div class="two"><label>Имя<input name="first" required value="${v('first')}"></label><label>Фамилия<input name="last" value="${v('last')}"></label></div>
+  <div class="two"><label>Возраст<input name="age" type="number" inputmode="numeric" min="0" max="120" value="${v('age')}"></label><label>Должность<input name="role" value="${v('role')}"></label></div>
+  <label>Телефон<input name="phone" type="tel" value="${v('phone')}"></label>
+  <label>Почта<input name="email" type="email" value="${v('email')}"></label>
+  <div class="two"><label>Дата рождения<input name="birth" type="date" value="${v('birth')}"></label><label>Принят на работу<input name="hired" type="date" value="${v('hired')}"></label></div>
+  <label>Адрес<input name="addr" value="${v('addr')}"></label>
+  <label>Заметки<textarea name="note" rows="3">${v('note')}</textarea></label>
+  <div class="btns">${isNew?'':'<button type="button" class="btn d" id="del">Удалить</button>'}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`;
+  const pv=()=>{const o=Object.fromEntries(new FormData($('f')));$('pv').innerHTML=avatar({photo,first:o.first,last:o.last})};
+  dlg.showModal();pv();
+  $('f').elements.first.oninput=pv;$('f').elements.last.oninput=pv;
+  $('cx').onclick=()=>dlg.close();
+  $('pick').onclick=()=>$('file').click();
+  $('rm').onclick=()=>{photo='';pv()};
+  $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),u=URL.createObjectURL(f);img.onload=()=>{const m=480,s=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(u);pv()};img.src=u};
+  if(!isNew)$('del').onclick=()=>{if(confirm('Удалить сотрудника?')){const d=dept();d.people=d.people.filter(x=>x!==p);save();dlg.close();render()}};
+  $('f').onsubmit=e=>{const o=Object.fromEntries(new FormData(e.target));Object.keys(o).forEach(k=>o[k]=o[k].trim());o.photo=photo;if(isNew)dept().people.push({id:uid(),...o});else Object.assign(p,o);save();render()};
+}
+
+function backupDlg(){
+  dlg.innerHTML=`<form method="dialog" id="f"><h2>Резервная копия</h2>
+  <button type="button" class="btn" id="ex">Сохранить копию в файл</button>
+  <button type="button" class="btn" id="im">Загрузить из файла</button>
+  <input type="file" id="imf" accept=".json,application/json" hidden>
+  <div class="btns"><button type="button" class="btn" id="cx">Закрыть</button></div></form>`;
+  dlg.showModal();$('cx').onclick=()=>dlg.close();
+  $('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='kartoteka-'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+  $('im').onclick=()=>$('imf').click();
+  $('imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.depts))throw 0;if(confirm('Заменить текущие данные данными из файла?')){db=x;save();cur=null;dlg.close();render()}}catch(_){alert('Файл не подходит')}};r.readAsText(f)};
+}
+render();
+</script>
+</body>
+</html>
