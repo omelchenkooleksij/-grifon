@@ -24,6 +24,7 @@ main{padding:0 16px 110px;max-width:640px;margin:auto}
 .row .t span{color:var(--mute);font-size:14px}
 .av{width:48px;height:48px;border-radius:50%;background:var(--line);color:var(--mute);display:grid;place-items:center;font-weight:600;flex:none;object-fit:cover}
 .sq{border-radius:12px}
+.nx{color:var(--mute);display:flex}.cl{color:var(--acc);display:flex}
 .empty{text-align:center;color:var(--mute);padding:60px 20px}
 .fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:var(--accink);font-size:30px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
 dialog{border:0;padding:0;width:min(520px,100%);max-height:92vh;margin:auto auto 0;border-radius:20px 20px 0 0;background:var(--bg);color:var(--ink)}
@@ -56,6 +57,8 @@ try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('Не удалось сохранить: память заполнена. Сделайте экспорт и удалите лишние фото.')}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ic=p=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I={back:ic('<path d="M15 18l-6-6 6-6"/>'),edit:ic('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),backup:ic('<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>'),folder:ic('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),next:ic('<path d="M9 18l6-6-6-6"/>'),users:ic('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8"/>'),call:ic('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>')};
 const $=id=>document.getElementById(id);
 const dept=()=>db.depts.find(d=>d.id===cur);
 const ini=p=>((p.first||'')[0]||'')+((p.last||'')[0]||'')||'?';
@@ -65,19 +68,19 @@ const ageWord=n=>{n=+n;const m=n%100,k=n%10;return (m>10&&m<15)?'лет':k==1?'�
 function render(){
   const app=$('app'),hd=$('hd');
   if(!cur){
-    hd.innerHTML=`<h1>Отделы</h1><button class="ib" id="menu">Копия</button>`;
-    app.innerHTML=db.depts.length?db.depts.map(d=>`<div class="row" data-d="${d.id}"><div class="av sq">${esc((d.name[0]||'?').toUpperCase())}</div><div class="t"><b>${esc(d.name)}</b><span>${d.people.length} чел.</span></div></div>`).join(''):`<div class="empty">Пока нет отделов.<br>Нажмите «+», чтобы создать первый.</div>`;
+    hd.innerHTML=`<h1>Отделы</h1><button class="ib" id="menu" aria-label="Резервная копия">${I.backup}</button>`;
+    app.innerHTML=db.depts.length?db.depts.map(d=>`<div class="row" data-d="${d.id}"><div class="av sq">${I.folder}</div><div class="t"><b>${esc(d.name)}</b><span>${d.people.length} чел.</span></div><span class="nx">${I.next}</span></div>`).join(''):`<div class="empty">Пока нет отделов.<br>Нажмите «+», чтобы создать первый.</div>`;
     app.querySelectorAll('[data-d]').forEach(e=>e.onclick=()=>{cur=e.dataset.d;q='';render();scrollTo(0,0)});
     $('menu').onclick=backupDlg;
   }else{
     const d=dept();
-    hd.innerHTML=`<button class="ib" id="back">‹ Назад</button><h1>${esc(d.name)}</h1><button class="ib" id="ren">Изменить</button>`;
+    hd.innerHTML=`<button class="ib" id="back" aria-label="Назад">${I.back}</button><h1>${esc(d.name)}</h1><button class="ib" id="ren" aria-label="Изменить отдел">${I.edit}</button>`;
     const list=d.people.filter(p=>[p.first,p.last,p.role,p.phone,p.email,p.note].join(' ').toLowerCase().includes(q.toLowerCase()));
     app.innerHTML=(d.people.length>4?`<input class="search" id="q" placeholder="Поиск" value="${esc(q)}">`:'')+
-      (list.length?list.map(p=>`<div class="row" data-p="${p.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc([p.role,p.age?p.age+' '+ageWord(p.age):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div></div>`).join(''):`<div class="empty">${d.people.length?'Ничего не найдено':'В отделе пока никого.<br>Нажмите «+», чтобы добавить сотрудника.'}</div>`);
+      (list.length?list.map(p=>`<div class="row" data-p="${p.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc([p.role,p.age?p.age+' '+ageWord(p.age):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div>${p.phone?`<a class="ib cl" href="tel:${esc(p.phone)}" aria-label="Позвонить">${I.call}</a>`:''}</div>`).join(''):`<div class="empty">${d.people.length?'Ничего не найдено':'В отделе пока никого.<br>Нажмите «+», чтобы добавить сотрудника.'}</div>`);
     $('back').onclick=()=>{cur=null;render()};
     $('ren').onclick=()=>deptDlg(d);
-    app.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>personDlg(d.people.find(p=>p.id===e.dataset.p)));
+    app.querySelectorAll('[data-p]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('.cl'))return;personDlg(d.people.find(p=>p.id===e.dataset.p))});
     const s=$('q');if(s)s.oninput=()=>{q=s.value;const pos=s.selectionStart;render();const n=$('q');n.focus();n.setSelectionRange(pos,pos)};
   }
 }
