@@ -6,133 +6,235 @@
 <meta name="theme-color" content="#f6f5f2">
 <title>Картотека</title>
 <style>
-:root{--bg:#f6f5f2;--card:#fff;--ink:#1c1c1a;--mute:#8a8983;--line:#e6e4de;--acc:#2f5d50;--accink:#fff;--danger:#b3372f}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#212120;--ink:#ecebe6;--mute:#8d8c86;--line:#32312e;--acc:#7fb5a3;--accink:#10201b;--danger:#e0776e}}
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1c1c1a;--mute:#8a8983;--line:#e6e4de;--acc:#2f5d50;--accink:#fff;--soft:#e1ebe7;--danger:#b3372f;--ok:#2e8b57}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--card:#212120;--ink:#ecebe6;--mute:#8d8c86;--line:#32312e;--acc:#7fb5a3;--accink:#10201b;--soft:#243530;--danger:#e0776e;--ok:#6fcf97}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:8px;padding:14px 16px 10px;padding-top:calc(14px + env(safe-area-inset-top))}
-header h1{flex:1;margin:0;font-size:22px;font-weight:650;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ib{border:0;background:none;color:var(--ink);font-size:15px;padding:8px 10px;border-radius:10px;cursor:pointer}
-.ib:active{background:var(--line)}
-main{padding:0 16px 110px;max-width:640px;margin:auto}
-.search{width:100%;margin:0 0 12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit}
-.row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer}
-.row:active{background:var(--line)}
-.row .t{flex:1;min-width:0}
-.row .t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .t span{color:var(--mute);font-size:14px}
-.av{width:48px;height:48px;border-radius:50%;background:var(--line);color:var(--mute);display:grid;place-items:center;font-weight:600;flex:none;object-fit:cover}
-.sq{border-radius:12px}
-.nx{color:var(--mute);display:flex}.cl{color:var(--acc);display:flex}
-.empty{text-align:center;color:var(--mute);padding:60px 20px}
-.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:var(--accink);font-size:30px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
-dialog{border:0;padding:0;width:min(520px,100%);max-height:92vh;margin:auto auto 0;border-radius:20px 20px 0 0;background:var(--bg);color:var(--ink)}
-dialog::backdrop{background:rgba(0,0,0,.4)}
-form{padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
-form h2{margin:0 0 4px;font-size:19px}
-label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:4px}
-input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
-input:focus,textarea:focus,.search:focus{outline:2px solid var(--acc);outline-offset:-1px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:6px;padding:12px 12px 8px 16px;padding-top:calc(12px + env(safe-area-inset-top));min-height:62px}
+header h1{flex:1;margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{border:0;background:none;color:var(--ink);padding:8px;border-radius:12px;cursor:pointer;display:flex;transition:background .15s,transform .15s}
+.ib:active{background:var(--line);transform:scale(.9)}
+main{padding:0 16px 170px;max-width:640px;margin:auto}
+main>*{animation:in .34s cubic-bezier(.2,.8,.3,1) both}
+main.nofx>*{animation:none}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}
+@keyframes fi{from{opacity:0}}
+@keyframes gr{from{width:0}}
+.search,input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;transition:border-color .15s,box-shadow .15s}
+.search{margin-bottom:12px}
+input:focus,textarea:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px var(--soft)}
+.row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:8px;cursor:pointer;transition:transform .15s,background .15s}
+.row:active{transform:scale(.975);background:var(--soft)}
+.t{flex:1;min-width:0}
+.t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t span,.mu{color:var(--mute);font-size:14px}
+.av{width:48px;height:48px;border-radius:50%;background:var(--soft);color:var(--acc);display:grid;place-items:center;font-weight:650;flex:none;object-fit:cover}
+.sq{border-radius:14px}
+.nx{color:var(--mute);display:flex}.cl{color:var(--acc)}
+.empty{text-align:center;color:var(--mute);padding:70px 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.big{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.big.sm{font-size:24px;margin:2px 0 0}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:8px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:4px;animation:gr .8s cubic-bezier(.2,.8,.3,1) both}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .card{margin:0}
+.sec{display:flex;justify-content:space-between;margin:18px 4px 8px;font-weight:600}.sec span{color:var(--mute);font-weight:500}
+.mon{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mon b{font-size:17px}
+.amt{text-align:right}.amt b{display:block;font-weight:650}
+.st{font-size:13px;color:var(--mute)}.st.ok{color:var(--ok)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;border:0;background:none;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;font:inherit;font-size:11px;cursor:pointer}
+.tab i{display:grid;place-items:center;width:60px;height:30px;border-radius:15px;transition:background .3s,transform .15s}
+.tab:active i{transform:scale(.9)}.tab.on{color:var(--acc);font-weight:600}.tab.on i{background:var(--soft)}
+.fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:20px;border:0;background:var(--acc);color:var(--accink);font-size:30px;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;z-index:6;transition:transform .15s;animation:in .4s both}
+.fab:active{transform:scale(.88) rotate(90deg)}
+dialog{border:0;padding:0;width:min(520px,100%);max-height:92vh;margin:auto auto 0;border-radius:24px 24px 0 0;background:var(--bg);color:var(--ink);overflow:hidden}
+dialog[open]{animation:up .32s cubic-bezier(.2,.9,.3,1)}
+dialog[open]::backdrop{background:rgba(0,0,0,.45);animation:fi .25s}
+dialog.out{animation:dn .17s ease-in forwards}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+@keyframes dn{to{transform:translateY(60px);opacity:0}}
+form,.pad{padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+form{overflow:auto;max-height:92vh}
+h2{margin:0 0 4px;font-size:20px}
+label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:5px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.photo{display:flex;align-items:center;gap:14px}
-.photo .av{width:84px;height:84px;font-size:26px}
+.photo{display:flex;align-items:center;gap:16px}.photo .av{width:84px;height:84px;font-size:26px}
 .btns{display:flex;gap:8px;margin-top:6px}
-.btn{flex:1;border:0;border-radius:12px;padding:13px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink)}
-.btn.p{background:var(--acc);color:var(--accink)}
-.btn.d{color:var(--danger);flex:none}
-.link{color:var(--acc);font-size:14px;background:none;border:0;padding:0;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.btn{flex:1;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s}
+.btn:active{transform:scale(.96)}.btn.p{background:var(--acc);color:var(--accink)}.btn.d{color:var(--danger);flex:none}.btn.x{background:var(--danger);color:#fff}
+.link{background:none;border:0;padding:0;font:inherit;font-size:14px;color:var(--acc);cursor:pointer;text-align:left}
+.dt{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink);font-size:16px;cursor:pointer;transition:transform .15s}
+.dt:active{transform:scale(.98)}.dt svg{color:var(--mute);flex:none}
+.swl{flex-direction:row;justify-content:space-between;align-items:center;font-size:16px;color:var(--ink);padding:6px 0}
+.swl input{display:none}.swl i{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;transition:.25s}
+.swl i:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.25s cubic-bezier(.3,1.4,.5,1)}
+.swl input:checked+i{background:var(--acc)}.swl input:checked+i:after{transform:translateX(20px)}
+.tot{display:flex;justify-content:space-between;font-size:17px;padding:6px 2px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ttl{border:0;background:none;color:var(--ink);font:inherit;font-weight:650;font-size:17px;padding:8px 14px;border-radius:12px;cursor:pointer}
+.cg,.wd{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.wd{color:var(--mute);font-size:13px;padding:4px 0}
+.cg{animation:fi .2s}.cg button,.cg i{height:44px}
+.cg button{border:0;background:none;color:var(--ink);font:inherit;border-radius:50%;cursor:pointer;transition:background .15s,transform .15s}
+.cg button:active{transform:scale(.85)}.cg .on{background:var(--acc);color:var(--accink);font-weight:650}
+.cg .td:not(.on){box-shadow:inset 0 0 0 1.5px var(--acc)}
+.yrs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:300px;overflow:auto;animation:fi .2s}
+.yrs button{border:0;background:none;color:var(--ink);font:inherit;padding:11px;border-radius:12px;cursor:pointer}.yrs .on{background:var(--acc);color:var(--accink);font-weight:650}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:22px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:99;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*,::backdrop{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <header id="hd"></header>
 <main id="app"></main>
 <button class="fab" id="fab" aria-label="Добавить">+</button>
+<nav id="nav"></nav>
 <dialog id="dlg"></dialog>
-
+<dialog id="dp"></dialog>
+<div id="toast"></div>
 <script>
-const KEY='kartoteka_v1';
-let db={depts:[]},cur=null,q='';
+const KEY='kartoteka_v1',MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const $=id=>document.getElementById(id);
+const ic=p=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I={back:ic('<path d="M15 18l-6-6 6-6"/>'),next:ic('<path d="M9 18l6-6-6-6"/>'),edit:ic('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),folder:ic('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),call:ic('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>'),wallet:ic('<path d="M3 7a2 2 0 012-2h12v4"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-8a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>'),chart:ic('<path d="M5 20v-8M12 20V5M19 20v-5"/>'),cal:ic('<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')};
+const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+const pd=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
+const fd=s=>pd(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+let db={depts:[],pay:{},cur:'₽'},tab='d',cur=null,q='',mon=ym(new Date());
 try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){alert('Не удалось сохранить: память заполнена. Сделайте экспорт и удалите лишние фото.')}};
+db.pay=db.pay||{};db.cur=db.cur||'₽';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Память заполнена. Сделайте копию и удалите лишние фото')}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ic=p=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const I={back:ic('<path d="M15 18l-6-6 6-6"/>'),edit:ic('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),backup:ic('<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>'),folder:ic('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),next:ic('<path d="M9 18l6-6-6-6"/>'),users:ic('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8"/>'),call:ic('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>')};
-const $=id=>document.getElementById(id);
 const dept=()=>db.depts.find(d=>d.id===cur);
-const ini=p=>((p.first||'')[0]||'')+((p.last||'')[0]||'')||'?';
-const avatar=(p,cls='')=>p.photo?`<img class="av ${cls}" src="${p.photo}" alt="">`:`<div class="av ${cls}">${esc(ini(p).toUpperCase())}</div>`;
-const ageWord=n=>{n=+n;const m=n%100,k=n%10;return (m>10&&m<15)?'лет':k==1?'год':(k>1&&k<5)?'года':'лет'};
+const all=()=>db.depts.flatMap(d=>d.people.map(p=>({p,d})));
+const ini=p=>(((p.first||'')[0]||'')+((p.last||'')[0]||'')||'?').toUpperCase();
+const avatar=p=>p.photo?`<img class="av" src="${p.photo}" alt="">`:`<div class="av">${esc(ini(p))}</div>`;
+const mny=n=>(+n||0).toLocaleString('ru-RU')+' '+db.cur;
+const wd=n=>{n=+n;const m=n%100,k=n%10;return m>10&&m<15?'лет':k==1?'год':k>1&&k<5?'года':'лет'};
+const ageOf=p=>{if(p.birth){const b=pd(p.birth),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a}return +p.age||0};
+const daysTo=p=>{const b=pd(p.birth),t=new Date();t.setHours(0,0,0,0);let n=new Date(t.getFullYear(),b.getMonth(),b.getDate());if(n<t)n=new Date(t.getFullYear()+1,b.getMonth(),b.getDate());return Math.round((n-t)/864e5)};
+const rec=p=>(db.pay[mon]||{})[p.id]||{};
+const net=p=>(+p.salary||0)+(+rec(p).bonus||0)-(+rec(p).ded||0);
+const hap=()=>navigator.vibrate&&navigator.vibrate(8);
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
+document.addEventListener('click',e=>{if(e.target.closest('button,.row,.dt'))hap()});
 
-function render(){
-  const app=$('app'),hd=$('hd');
-  if(!cur){
-    hd.innerHTML=`<h1>Отделы</h1><button class="ib" id="menu" aria-label="Резервная копия">${I.backup}</button>`;
-    app.innerHTML=db.depts.length?db.depts.map(d=>`<div class="row" data-d="${d.id}"><div class="av sq">${I.folder}</div><div class="t"><b>${esc(d.name)}</b><span>${d.people.length} чел.</span></div><span class="nx">${I.next}</span></div>`).join(''):`<div class="empty">Пока нет отделов.<br>Нажмите «+», чтобы создать первый.</div>`;
-    app.querySelectorAll('[data-d]').forEach(e=>e.onclick=()=>{cur=e.dataset.d;q='';render();scrollTo(0,0)});
-    $('menu').onclick=backupDlg;
+const dlg=$('dlg'),dp=$('dp');
+const shut=d=>{if(!d.open)return;d.classList.add('out');setTimeout(()=>{d.classList.remove('out');d.close()},170)};
+[dlg,dp].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)shut(d)}));
+const show=(d,h)=>{d.innerHTML=h;if(!d.open)d.showModal()};
+const ask=(t,ok='Удалить')=>new Promise(r=>{show(dp,`<div class="pad"><h2>${esc(t)}</h2><div class="btns"><button class="btn" id="n">Отмена</button><button class="btn x" id="y">${ok}</button></div></div>`);$('n').onclick=()=>{shut(dp);r(false)};$('y').onclick=()=>{shut(dp);r(true)}});
+
+function pickDate(val,cb){
+  const t=new Date();let sel=val?pd(val):null,vw=sel?new Date(sel.getFullYear(),sel.getMonth(),1):new Date(t.getFullYear(),t.getMonth(),1),yr=false;
+  const key=d=>ym(d)+'-'+String(d.getDate()).padStart(2,'0'),sk=sel?key(sel):'',tk=key(t);
+  const done=v=>{shut(dp);cb(v)};
+  const draw=()=>{
+    let b;const Y=vw.getFullYear(),M=vw.getMonth();
+    if(yr){let c='';for(let y=t.getFullYear()+1;y>=1930;y--)c+=`<button type="button" data-y="${y}" class="${y===Y?'on':''}">${y}</button>`;b=`<div class="yrs">${c}</div>`}
+    else{const off=(new Date(Y,M,1).getDay()+6)%7,n=new Date(Y,M+1,0).getDate();let c='<i></i>'.repeat(off);for(let d=1;d<=n;d++){const k=key(new Date(Y,M,d));c+=`<button type="button" data-k="${k}" class="${k===sk?'on':''} ${k===tk?'td':''}">${d}</button>`}
+      b=`<div class="wd">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<span>${x}</span>`).join('')}</div><div class="cg">${c}</div>`}
+    show(dp,`<div class="pad"><div class="ch"><button type="button" class="ib" id="cp" style="${yr?'visibility:hidden':''}">${I.back}</button><button type="button" class="ttl" id="ct">${yr?'Выберите год':MN[M]+' '+Y}</button><button type="button" class="ib" id="cn" style="${yr?'visibility:hidden':''}">${I.next}</button></div>${b}<div class="btns">${sel?'<button type="button" class="btn d" id="cc">Очистить</button>':''}<button type="button" class="btn" id="ctd">Сегодня</button></div></div>`);
+    $('cp').onclick=()=>{vw=new Date(Y,M-1,1);draw()};$('cn').onclick=()=>{vw=new Date(Y,M+1,1);draw()};
+    $('ct').onclick=()=>{yr=!yr;draw()};$('ctd').onclick=()=>done(tk);if(sel)$('cc').onclick=()=>done('');
+    dp.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>done(e.dataset.k));
+    dp.querySelectorAll('[data-y]').forEach(e=>e.onclick=()=>{vw=new Date(+e.dataset.y,M,1);yr=false;draw()});
+    const on=dp.querySelector('.yrs .on');if(on)on.scrollIntoView({block:'center'});
+  };draw();
+}
+const dateField=(l,n,v)=>`<label>${l}<div class="dt" tabindex="0"><span>${v?fd(v):'Не указано'}</span>${I.cal}<input type="hidden" name="${n}" value="${v||''}"></div></label>`;
+
+function render(fx=true){
+  const app=$('app'),hd=$('hd');let h='',head='';
+  app.classList.toggle('nofx',!fx);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
+  $('fab').style.display=tab==='d'?'':'none';
+  const m=q.toLowerCase(),hit=p=>[p.first,p.last,p.role,p.phone,p.email,p.note].join(' ').toLowerCase().includes(m);
+  const prow=(p,d,x='',sub)=>`<div class="row" data-p="${p.id}" data-d="${d.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc(sub??[p.role,ageOf(p)?ageOf(p)+' '+wd(ageOf(p)):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div>${x}</div>`;
+  const srch=n=>n>4?`<input class="search" id="q" placeholder="Поиск" value="${esc(q)}">`:'';
+  if(tab==='d'){
+    if(!cur){
+      head='<h1>Отделы</h1>';const n=all().length;h=srch(n);
+      if(q)h+=all().filter(({p})=>hit(p)).map(({p,d})=>prow(p,d,'',d.name)).join('')||'<div class="empty">Ничего не найдено</div>';
+      else h+=db.depts.length?db.depts.map(d=>`<div class="row dr" data-d="${d.id}"><div class="av sq">${I.folder}</div><div class="t"><b>${esc(d.name)}</b><span>${d.people.length} чел.</span></div><span class="nx">${I.next}</span></div>`).join(''):'<div class="empty">Пока нет отделов.<br>Нажмите «+», чтобы создать первый.</div>';
+    }else{
+      const d=dept();head=`<button class="ib" id="back" aria-label="Назад">${I.back}</button><h1>${esc(d.name)}</h1><button class="ib" id="ren" aria-label="Изменить отдел">${I.edit}</button>`;
+      const l=d.people.filter(hit);h=srch(d.people.length)+(l.length?l.map(p=>prow(p,d,p.phone?`<a class="ib cl" href="tel:${esc(p.phone)}" aria-label="Позвонить">${I.call}</a>`:'')).join(''):`<div class="empty">${d.people.length?'Ничего не найдено':'В отделе пока никого.<br>Нажмите «+», чтобы добавить сотрудника.'}</div>`);
+    }
+  }else if(tab==='p'){
+    const rs=all();let tot=0,pd2=0;rs.forEach(({p})=>{const n=net(p);tot+=n;if(rec(p).paid)pd2+=n});
+    head='<h1>Ведомость</h1>';const[y,mm]=mon.split('-');
+    h=`<div class="mon"><button class="ib" id="pm" aria-label="Прошлый месяц">${I.back}</button><b>${MN[mm-1]} ${y}</b><button class="ib" id="nm" aria-label="Следующий месяц">${I.next}</button></div><div class="card"><span class="mu">К выплате</span><div class="big">${mny(tot)}</div><div class="bar"><i style="width:${tot>0?pd2/tot*100:0}%"></i></div><span class="mu">Выплачено ${mny(pd2)}</span></div>`;
+    db.depts.filter(d=>d.people.length).forEach(d=>{h+=`<div class="sec">${esc(d.name)}<span>${mny(d.people.reduce((s,p)=>s+net(p),0))}</span></div>`+d.people.map(p=>prow(p,d,`<div class="amt"><b>${p.salary||rec(p).bonus?mny(net(p)):'—'}</b><span class="st ${rec(p).paid?'ok':''}">${rec(p).paid?'Выплачено':'Ожидает'}</span></div>`,p.role)).join('')});
+    if(!rs.length)h+='<div class="empty">Сначала добавьте сотрудников в отделы</div>';
+    else if(rs.some(({p})=>!rec(p).paid))h+='<div class="btns"><button class="btn" id="allp">Отметить всех выплаченными</button></div>';
   }else{
-    const d=dept();
-    hd.innerHTML=`<button class="ib" id="back" aria-label="Назад">${I.back}</button><h1>${esc(d.name)}</h1><button class="ib" id="ren" aria-label="Изменить отдел">${I.edit}</button>`;
-    const list=d.people.filter(p=>[p.first,p.last,p.role,p.phone,p.email,p.note].join(' ').toLowerCase().includes(q.toLowerCase()));
-    app.innerHTML=(d.people.length>4?`<input class="search" id="q" placeholder="Поиск" value="${esc(q)}">`:'')+
-      (list.length?list.map(p=>`<div class="row" data-p="${p.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc([p.role,p.age?p.age+' '+ageWord(p.age):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div>${p.phone?`<a class="ib cl" href="tel:${esc(p.phone)}" aria-label="Позвонить">${I.call}</a>`:''}</div>`).join(''):`<div class="empty">${d.people.length?'Ничего не найдено':'В отделе пока никого.<br>Нажмите «+», чтобы добавить сотрудника.'}</div>`);
-    $('back').onclick=()=>{cur=null;render()};
-    $('ren').onclick=()=>deptDlg(d);
-    app.querySelectorAll('[data-p]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('.cl'))return;personDlg(d.people.find(p=>p.id===e.dataset.p))});
-    const s=$('q');if(s)s.oninput=()=>{q=s.value;const pos=s.selectionStart;render();const n=$('q');n.focus();n.setSelectionRange(pos,pos)};
+    head='<h1>Сводка</h1>';const rs=all(),ag=rs.map(({p})=>ageOf(p)).filter(Boolean),avg=ag.length?Math.round(ag.reduce((a,b)=>a+b,0)/ag.length):'—',fund=rs.reduce((s,{p})=>s+net(p),0);
+    const bd=rs.filter(({p})=>p.birth).map(({p,d})=>({p,d,n:daysTo(p)})).filter(x=>x.n<=30).sort((a,b)=>a.n-b.n).slice(0,6);
+    h=`<div class="grid"><div class="card"><span class="mu">Сотрудников</span><div class="big sm">${rs.length}</div></div><div class="card"><span class="mu">Отделов</span><div class="big sm">${db.depts.length}</div></div><div class="card"><span class="mu">Средний возраст</span><div class="big sm">${avg}</div></div><div class="card"><span class="mu">Фонд за ${MN[+mon.split('-')[1]-1].toLowerCase()}</span><div class="big sm">${mny(fund)}</div></div></div>`;
+    h+='<div class="sec">Ближайшие дни рождения</div>'+(bd.length?bd.map(({p,d,n})=>prow(p,d,`<span class="st ${n?'':'ok'}">${n?'через '+n+' дн.':'Сегодня'}</span>`,pd(p.birth).toLocaleDateString('ru-RU',{day:'numeric',month:'long'}))).join(''):'<div class="mu" style="padding:0 4px 8px">В ближайшие 30 дней нет. Даты рождения указываются в карточке сотрудника.</div>');
+    h+=`<div class="sec">Настройки</div><div class="card" style="display:flex;flex-direction:column;gap:10px"><label>Валюта<input id="cur" maxlength="5" value="${esc(db.cur)}"></label><button class="btn" id="ex">Сохранить копию в файл</button><button class="btn" id="im">Загрузить из файла</button><input type="file" id="imf" accept=".json,application/json" hidden></div>`;
   }
+  hd.innerHTML=head;app.innerHTML=h;
+  app.querySelectorAll('main>*').forEach((e,i)=>e.style.animationDelay=Math.min(i,9)*30+'ms');
+  const b=id=>$(id);
+  if(b('back'))b('back').onclick=()=>{cur=null;q='';render()};
+  if(b('ren'))b('ren').onclick=()=>deptSheet(dept());
+  app.querySelectorAll('.dr').forEach(e=>e.onclick=()=>{cur=e.dataset.d;q='';render();scrollTo(0,0)});
+  app.querySelectorAll('[data-p]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('.cl'))return;const d=db.depts.find(x=>x.id===e.dataset.d),p=d.people.find(x=>x.id===e.dataset.p);tab==='p'?paySheet(p):personSheet(d,p)});
+  const s=b('q');if(s)s.oninput=()=>{q=s.value;const pos=s.selectionStart;render(false);const n=b('q');n.focus();n.setSelectionRange(pos,pos)};
+  const mv=k=>{const[y,m]=mon.split('-');mon=ym(new Date(+y,m-1+k,1));render()};
+  if(b('pm')){b('pm').onclick=()=>mv(-1);b('nm').onclick=()=>mv(1)}
+  if(b('allp'))b('allp').onclick=()=>{db.pay[mon]=db.pay[mon]||{};all().forEach(({p})=>{db.pay[mon][p.id]={...rec(p),paid:true}});save();render();toast('Все отмечены как выплаченные')};
+  if(b('cur'))b('cur').oninput=e=>{db.cur=e.target.value||'₽';save()};
+  if(b('ex'))b('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='kartoteka-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Копия сохранена')};
+  if(b('im')){b('im').onclick=()=>b('imf').click();b('imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.depts))throw 0;if(await ask('Заменить текущие данные данными из файла?','Заменить')){db=x;db.pay=db.pay||{};db.cur=db.cur||'₽';save();render();toast('Данные загружены')}}catch(_){toast('Файл не подходит')}};r.readAsText(f)}}
+}
+$('nav').innerHTML=[['d','Отделы',I.folder],['p','Ведомость',I.wallet],['s','Сводка',I.chart]].map(([t,l,i])=>`<button class="tab" data-t="${t}"><i>${i}</i><span>${l}</span></button>`).join('');
+document.querySelectorAll('.tab').forEach(e=>e.onclick=()=>{tab=e.dataset.t;cur=null;q='';render();scrollTo(0,0)});
+$('fab').onclick=()=>cur?personSheet(dept()):deptSheet();
+
+function deptSheet(d){
+  show(dlg,`<form id="f"><h2>${d?'Изменить отдел':'Новый отдел'}</h2><label>Название<input name="n" required maxlength="60" placeholder="Например, Склад" value="${esc(d?.name||'')}"></label><div class="btns">${d?'<button type="button" class="btn d" id="del">Удалить</button>':''}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`);
+  $('cx').onclick=()=>shut(dlg);
+  if(d)$('del').onclick=async()=>{if(await ask(`Удалить отдел «${d.name}» и всех сотрудников в нём?`)){db.depts=db.depts.filter(x=>x!==d);cur=null;save();shut(dlg);render()}};
+  $('f').onsubmit=e=>{e.preventDefault();const n=new FormData(e.target).get('n').trim();if(!n)return;if(d)d.name=n;else db.depts.push({id:uid(),name:n,people:[]});save();shut(dlg);render();toast('Сохранено')};
 }
 
-const dlg=$('dlg');
-dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
-$('fab').onclick=()=>cur?personDlg():deptDlg();
-
-function deptDlg(d){
-  dlg.innerHTML=`<form method="dialog" id="f"><h2>${d?'Изменить отдел':'Новый отдел'}</h2>
-  <label>Название<input name="n" required maxlength="60" placeholder="Например, Склад" value="${esc(d?.name||'')}"></label>
-  <div class="btns">${d?'<button type="button" class="btn d" id="del">Удалить</button>':''}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`;
-  dlg.showModal();
-  $('cx').onclick=()=>dlg.close();
-  if(d)$('del').onclick=()=>{if(confirm(`Удалить отдел «${d.name}» и всех сотрудников в нём?`)){db.depts=db.depts.filter(x=>x!==d);cur=null;save();dlg.close();render()}};
-  $('f').onsubmit=e=>{const n=new FormData(e.target).get('n').trim();if(!n)return;if(d)d.name=n;else db.depts.push({id:uid(),name:n,people:[]});save();render()};
-}
-
-function personDlg(p){
-  const isNew=!p;let photo=p?.photo||'';
-  const v=k=>esc(p?.[k]||'');
-  dlg.innerHTML=`<form method="dialog" id="f" style="overflow:auto;max-height:92vh"><h2>${isNew?'Новый сотрудник':'Сотрудник'}</h2>
-  <div class="photo"><div id="pv"></div><div style="display:flex;flex-direction:column;gap:6px"><button type="button" class="link" id="pick">Выбрать фото</button><button type="button" class="link" id="rm" style="color:var(--danger)">Убрать фото</button></div><input type="file" id="file" accept="image/*" hidden></div>
+function personSheet(d,p){
+  const nw=!p;let photo=p?.photo||'';const v=k=>esc(p?.[k]||'');
+  show(dlg,`<form id="f"><h2>${nw?'Новый сотрудник':'Сотрудник'}</h2>
+  <div class="photo"><div id="pv"></div><div style="display:flex;flex-direction:column;gap:8px"><button type="button" class="link" id="pick">Выбрать фото</button><button type="button" class="link" id="rm" style="color:var(--danger)">Убрать фото</button></div><input type="file" id="file" accept="image/*" hidden></div>
   <div class="two"><label>Имя<input name="first" required value="${v('first')}"></label><label>Фамилия<input name="last" value="${v('last')}"></label></div>
-  <div class="two"><label>Возраст<input name="age" type="number" inputmode="numeric" min="0" max="120" value="${v('age')}"></label><label>Должность<input name="role" value="${v('role')}"></label></div>
-  <label>Телефон<input name="phone" type="tel" value="${v('phone')}"></label>
+  <div class="two"><label>Должность<input name="role" value="${v('role')}"></label><label>Оклад, ${esc(db.cur)}<input name="salary" type="number" inputmode="decimal" value="${v('salary')}"></label></div>
+  <div class="two"><label>Телефон<input name="phone" type="tel" value="${v('phone')}"></label><label>Возраст<input name="age" type="number" inputmode="numeric" min="0" max="120" value="${v('age')}"></label></div>
   <label>Почта<input name="email" type="email" value="${v('email')}"></label>
-  <div class="two"><label>Дата рождения<input name="birth" type="date" value="${v('birth')}"></label><label>Принят на работу<input name="hired" type="date" value="${v('hired')}"></label></div>
+  <div class="two">${dateField('Дата рождения','birth',p?.birth)}${dateField('Принят на работу','hired',p?.hired)}</div>
   <label>Адрес<input name="addr" value="${v('addr')}"></label>
   <label>Заметки<textarea name="note" rows="3">${v('note')}</textarea></label>
-  <div class="btns">${isNew?'':'<button type="button" class="btn d" id="del">Удалить</button>'}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`;
-  const pv=()=>{const o=Object.fromEntries(new FormData($('f')));$('pv').innerHTML=avatar({photo,first:o.first,last:o.last})};
-  dlg.showModal();pv();
-  $('f').elements.first.oninput=pv;$('f').elements.last.oninput=pv;
-  $('cx').onclick=()=>dlg.close();
-  $('pick').onclick=()=>$('file').click();
-  $('rm').onclick=()=>{photo='';pv()};
-  $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),u=URL.createObjectURL(f);img.onload=()=>{const m=480,s=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(u);pv()};img.src=u};
-  if(!isNew)$('del').onclick=()=>{if(confirm('Удалить сотрудника?')){const d=dept();d.people=d.people.filter(x=>x!==p);save();dlg.close();render()}};
-  $('f').onsubmit=e=>{const o=Object.fromEntries(new FormData(e.target));Object.keys(o).forEach(k=>o[k]=o[k].trim());o.photo=photo;if(isNew)dept().people.push({id:uid(),...o});else Object.assign(p,o);save();render()};
+  <div class="btns">${nw?'':'<button type="button" class="btn d" id="del">Удалить</button>'}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`);
+  const f=$('f'),pv=()=>{$('pv').innerHTML=avatar({photo,first:f.first.value,last:f.last.value})};pv();
+  f.first.oninput=pv;f.last.oninput=pv;
+  $('cx').onclick=()=>shut(dlg);$('pick').onclick=()=>$('file').click();$('rm').onclick=()=>{photo='';pv()};
+  f.querySelectorAll('.dt').forEach(e=>e.onclick=()=>{const i=e.querySelector('input');pickDate(i.value,x=>{i.value=x;e.firstElementChild.textContent=x?fd(x):'Не указано'})});
+  $('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image(),u=URL.createObjectURL(fl);img.onload=()=>{const s=Math.min(1,480/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(u);pv()};img.src=u};
+  if(!nw)$('del').onclick=async()=>{if(await ask('Удалить сотрудника?')){d.people=d.people.filter(x=>x!==p);save();shut(dlg);render()}};
+  f.onsubmit=e=>{e.preventDefault();const o=Object.fromEntries(new FormData(f));Object.keys(o).forEach(k=>o[k]=o[k].trim());o.photo=photo;if(nw)d.people.push({id:uid(),...o});else Object.assign(p,o);save();shut(dlg);render();toast('Сохранено')};
 }
 
-function backupDlg(){
-  dlg.innerHTML=`<form method="dialog" id="f"><h2>Резервная копия</h2>
-  <button type="button" class="btn" id="ex">Сохранить копию в файл</button>
-  <button type="button" class="btn" id="im">Загрузить из файла</button>
-  <input type="file" id="imf" accept=".json,application/json" hidden>
-  <div class="btns"><button type="button" class="btn" id="cx">Закрыть</button></div></form>`;
-  dlg.showModal();$('cx').onclick=()=>dlg.close();
-  $('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='kartoteka-'+new Date().toISOString().slice(0,10)+'.json';a.click()};
-  $('im').onclick=()=>$('imf').click();
-  $('imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.depts))throw 0;if(confirm('Заменить текущие данные данными из файла?')){db=x;save();cur=null;dlg.close();render()}}catch(_){alert('Файл не подходит')}};r.readAsText(f)};
+function paySheet(p){
+  const r=rec(p);
+  show(dlg,`<form id="f"><h2>${esc(p.first)} ${esc(p.last)}</h2><div class="mu" style="margin-top:-8px">${MN[+mon.split('-')[1]-1]} ${mon.split('-')[0]}</div>
+  <div class="two"><label>Оклад<input name="salary" type="number" inputmode="decimal" value="${esc(p.salary||'')}"></label><label>Премия<input name="bonus" type="number" inputmode="decimal" value="${esc(r.bonus||'')}"></label></div>
+  <label>Вычет<input name="ded" type="number" inputmode="decimal" value="${esc(r.ded||'')}"></label>
+  <div class="tot"><span>Итого</span><b id="tt"></b></div>
+  <label class="swl">Выплачено<input type="checkbox" name="paid" ${r.paid?'checked':''}><i></i></label>
+  <div class="btns"><button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`);
+  const f=$('f'),up=()=>{$('tt').textContent=mny((+f.salary.value||0)+(+f.bonus.value||0)-(+f.ded.value||0))};up();
+  f.oninput=up;$('cx').onclick=()=>shut(dlg);
+  f.onsubmit=e=>{e.preventDefault();p.salary=f.salary.value;db.pay[mon]=db.pay[mon]||{};db.pay[mon][p.id]={bonus:f.bonus.value,ded:f.ded.value,paid:f.paid.checked};save();shut(dlg);render();toast('Сохранено')};
 }
 render();
 </script>
