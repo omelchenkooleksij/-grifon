@@ -66,6 +66,11 @@ label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:5p
 .btn{flex:1 1 0;min-width:0;border:0;border-radius:14px;padding:14px 8px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .btn:active{transform:scale(.96)}.btn.p{background:var(--acc);color:var(--accink)}.btn.d{color:var(--danger)}.btn.x{background:var(--danger);color:#fff}
 .card .btn{flex:none}
+.photo #pv .av{cursor:pointer}
+#ph{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;padding:0;border-radius:0;background:#000;inset:0}
+#ph[open]{display:flex;align-items:center;justify-content:center}
+#ph img{max-width:100%;max-height:100%;object-fit:contain;touch-action:pinch-zoom}
+#ph .ib{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;padding:10px}
 .dtin{text-align:center;font-size:18px;letter-spacing:.04em;margin-bottom:6px}
 .mos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;animation:fi .2s}
 .mos button{border:0;background:none;color:var(--ink);font:inherit;padding:16px 4px;border-radius:12px;cursor:pointer}.mos .on{background:var(--acc);color:var(--accink);font-weight:650}
@@ -100,12 +105,13 @@ label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:5p
 <nav id="nav"></nav>
 <dialog id="dlg"></dialog>
 <dialog id="dp"></dialog>
+<dialog id="ph"></dialog>
 <div id="toast"></div>
 <script>
 const KEY='kartoteka_v1',MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const $=id=>document.getElementById(id);
 const ic=p=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const I={back:ic('<path d="M15 18l-6-6 6-6"/>'),next:ic('<path d="M9 18l6-6-6-6"/>'),edit:ic('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),folder:ic('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),call:ic('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>'),wallet:ic('<path d="M3 7a2 2 0 012-2h12v4"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-8a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>'),chart:ic('<path d="M5 20v-8M12 20V5M19 20v-5"/>'),cal:ic('<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')};
+const I={x:ic('<path d="M6 6l12 12M18 6L6 18"/>'),back:ic('<path d="M15 18l-6-6 6-6"/>'),next:ic('<path d="M9 18l6-6-6-6"/>'),edit:ic('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),folder:ic('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),call:ic('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>'),wallet:ic('<path d="M3 7a2 2 0 012-2h12v4"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-8a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>'),chart:ic('<path d="M5 20v-8M12 20V5M19 20v-5"/>'),cal:ic('<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')};
 const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 const pd=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
 const fd=s=>pd(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
@@ -135,9 +141,11 @@ const hap=()=>navigator.vibrate&&navigator.vibrate(8);
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
 document.addEventListener('click',e=>{if(e.target.closest('button,.row,.dt'))hap()});
 
-const dlg=$('dlg'),dp=$('dp');
+const dlg=$('dlg'),dp=$('dp'),ph=$('ph');
 const shut=d=>{if(!d.open)return;d.classList.add('out');setTimeout(()=>{d.classList.remove('out');d.close()},170)};
 [dlg,dp].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)shut(d)}));
+ph.addEventListener('click',()=>shut(ph));
+const viewPhoto=src=>show(ph,`<img src="${esc(src)}" alt=""><button type="button" class="ib" aria-label="Закрыть">${I.x}</button>`);
 const show=(d,h)=>{d.innerHTML=h;if(!d.open)d.showModal()};
 const ask=(t,ok='Удалить')=>new Promise(r=>{show(dp,`<div class="pad"><h2>${esc(t)}</h2><div class="btns"><button class="btn" id="n">Отмена</button><button class="btn x" id="y">${ok}</button></div></div>`);$('n').onclick=()=>{shut(dp);r(false)};$('y').onclick=()=>{shut(dp);r(true)}});
 
@@ -202,7 +210,7 @@ function render(fx=true){
   app.classList.toggle('nofx',!fx);
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
   $('fab').style.display=tab==='d'?'':'none';
-  const m=q.toLowerCase(),hit=p=>[p.first,p.last,p.role,p.phone,p.email,p.note].join(' ').toLowerCase().includes(m);
+  const m=q.toLowerCase(),hit=p=>[p.first,p.last,p.role,p.phone,p.email,p.note,p.addr,p.reg].join(' ').toLowerCase().includes(m);
   const prow=(p,d,x='',sub)=>`<div class="row" data-p="${p.id}" data-d="${d.id}">${avatar(p)}<div class="t"><b>${esc(p.first)} ${esc(p.last)}</b><span>${esc(sub??[p.role,ageOf(p)?ageOf(p)+' '+wd(ageOf(p)):''].filter(Boolean).join(', '))||'&nbsp;'}</span></div>${x}</div>`;
   const srch=n=>n>4?`<input class="search" id="q" placeholder="Поиск" value="${esc(q)}">`:'';
   if(tab==='d'){
@@ -261,20 +269,23 @@ function deptSheet(d){
 function personSheet(d,p){
   const nw=!p;let photo=p?.photo||'';const v=k=>esc(p?.[k]||'');
   show(dlg,`<form id="f"><h2>${nw?'Новый сотрудник':'Сотрудник'}</h2>
-  <div class="photo"><div id="pv"></div><div style="display:flex;flex-direction:column;gap:8px"><button type="button" class="link" id="pick">Выбрать фото</button><button type="button" class="link" id="rm" style="color:var(--danger)">Убрать фото</button></div><input type="file" id="file" accept="image/*" hidden></div>
+  <div class="photo"><div id="pv"></div><div style="display:flex;flex-direction:column;gap:8px"><button type="button" class="link" id="pick">Выбрать фото</button><button type="button" class="link" id="rm" style="color:var(--danger)">Убрать фото</button><span class="mu" id="hint">Нажмите на фото, чтобы открыть целиком</span></div><input type="file" id="file" accept="image/*" hidden></div>
   <div class="two"><label>Имя<input name="first" required value="${v('first')}"></label><label>Фамилия<input name="last" value="${v('last')}"></label></div>
   <div class="two"><label>Должность<input name="role" value="${v('role')}"></label><label>Оклад, ${esc(db.cur)}<input name="salary" type="number" inputmode="decimal" value="${v('salary')}"></label></div>
   <div class="two"><label>Телефон<input name="phone" type="tel" value="${v('phone')}"></label><label>Возраст<input name="age" type="number" inputmode="numeric" min="0" max="120" value="${v('age')}"></label></div>
   <label>Почта<input name="email" type="email" value="${v('email')}"></label>
   <div class="two">${dateField('Дата рождения','birth',p?.birth)}${dateField('Принят на работу','hired',p?.hired)}</div>
-  <label>Адрес<input name="addr" value="${v('addr')}"></label>
+  <label>Адрес проживания<input name="addr" value="${v('addr')}"></label>
+  <label>Адрес прописки<input name="reg" value="${v('reg')}"></label><button type="button" class="link" id="same">Прописка совпадает с проживанием</button>
   <label>Заметки<textarea name="note" rows="3">${v('note')}</textarea></label>
   <div class="btns">${nw?'':'<button type="button" class="btn d" id="del">Удалить</button>'}<button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Сохранить</button></div></form>`);
-  const f=$('f'),pv=()=>{$('pv').innerHTML=avatar({photo,first:f.first.value,last:f.last.value})};pv();
+  const f=$('f'),pv=()=>{$('pv').innerHTML=avatar({photo,first:f.first.value,last:f.last.value});$('hint').style.display=photo?'':'none'};pv();
+  $('pv').onclick=()=>{if(photo)viewPhoto(photo)};
+  $('same').onclick=()=>{f.reg.value=f.addr.value};
   f.first.oninput=pv;f.last.oninput=pv;
   $('cx').onclick=()=>shut(dlg);$('pick').onclick=()=>$('file').click();$('rm').onclick=()=>{photo='';pv()};
   f.querySelectorAll('.dt').forEach(e=>e.onclick=()=>{const i=e.querySelector('input');const T=new Date().getFullYear(),o=i.name==='birth'?{y0:1940,y1:T-14,start:T-30}:{y0:1990};pickDate(i.value,x=>{i.value=x;e.firstElementChild.textContent=x?fd(x):'Не указано'},o)});
-  $('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image(),u=URL.createObjectURL(fl);img.onload=()=>{const s=Math.min(1,400/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.75);URL.revokeObjectURL(u);pv()};img.src=u};
+  $('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image(),u=URL.createObjectURL(fl);img.onload=()=>{const s=Math.min(1,640/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.75);URL.revokeObjectURL(u);pv()};img.src=u};
   if(!nw)$('del').onclick=async()=>{if(await ask('Удалить сотрудника?')){d.people=d.people.filter(x=>x!==p);save();shut(dlg);render()}};
   f.onsubmit=e=>{e.preventDefault();const o=Object.fromEntries(new FormData(f));Object.keys(o).forEach(k=>o[k]=o[k].trim());o.photo=photo;if(nw)d.people.push({id:uid(),...o});else Object.assign(p,o);save();shut(dlg);render();toast('Сохранено')};
 }
