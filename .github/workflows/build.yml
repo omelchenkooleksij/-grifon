@@ -17,10 +17,13 @@ jobs:
           java-version: 17
       - run: |
           mkdir www && cp index.html www/
+          mkdir assets && cp icon-*.png assets/
           npm init -y
           npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npm i -D @capacitor/assets
           npx cap init Kartoteka com.example.kartoteka --web-dir=www
           npx cap add android
+          npx capacitor-assets generate --android
           npx cap sync
           cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
