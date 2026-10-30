@@ -36,7 +36,7 @@ input:focus,textarea:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3p
 .big{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0 10px}.big.sm{font-size:24px;margin:2px 0 0}
 .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:8px}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:4px;animation:gr .8s cubic-bezier(.2,.8,.3,1) both}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .card{margin:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid .card{margin:0}
 .sec{display:flex;justify-content:space-between;margin:18px 4px 8px;font-weight:600}.sec span{color:var(--mute);font-weight:500}
 .mon{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mon b{font-size:17px}
 .amt{text-align:right}.amt b{display:block;font-weight:650}
@@ -54,14 +54,22 @@ dialog.out{animation:dn .17s ease-in forwards}
 @keyframes up{from{transform:translateY(60px);opacity:0}}
 @keyframes dn{to{transform:translateY(60px);opacity:0}}
 form,.pad{padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
-form{overflow:auto;max-height:92vh}
+form{overflow-y:auto;overflow-x:hidden;max-height:92vh}
+form>*,.pad>*{min-width:0;max-width:100%}
 h2{margin:0 0 4px;font-size:20px}
 label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:5px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.two>*{min-width:0}
 .photo{display:flex;align-items:center;gap:16px}.photo .av{width:84px;height:84px;font-size:26px}
 .btns{display:flex;gap:8px;margin-top:6px}
-.btn{flex:1;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s}
-.btn:active{transform:scale(.96)}.btn.p{background:var(--acc);color:var(--accink)}.btn.d{color:var(--danger);flex:none}.btn.x{background:var(--danger);color:#fff}
+.btns{min-width:0}
+.btn{flex:1 1 0;min-width:0;border:0;border-radius:14px;padding:14px 8px;font:inherit;font-weight:600;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn:active{transform:scale(.96)}.btn.p{background:var(--acc);color:var(--accink)}.btn.d{color:var(--danger)}.btn.x{background:var(--danger);color:#fff}
+.card .btn{flex:none}
+.dtin{text-align:center;font-size:18px;letter-spacing:.04em;margin-bottom:6px}
+.mos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;animation:fi .2s}
+.mos button{border:0;background:none;color:var(--ink);font:inherit;padding:16px 4px;border-radius:12px;cursor:pointer}.mos .on{background:var(--acc);color:var(--accink);font-weight:650}
+.chv{display:flex;gap:4px}
 .link{background:none;border:0;padding:0;font:inherit;font-size:14px;color:var(--acc);cursor:pointer;text-align:left}
 .dt{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink);font-size:16px;cursor:pointer;transition:transform .15s}
 .dt:active{transform:scale(.98)}.dt svg{color:var(--mute);flex:none}
@@ -102,9 +110,15 @@ const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 const pd=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
 const fd=s=>pd(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
 let db={depts:[],pay:{},cur:'₽'},tab='d',cur=null,q='',mon=ym(new Date());
-try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){}
-db.pay=db.pay||{};db.cur=db.cur||'₽';
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Память заполнена. Сделайте копию и удалите лишние фото')}};
+const BAK=KEY+'_bak';let lost=false;
+const norm=x=>{x.depts=Array.isArray(x.depts)?x.depts:[];x.depts.forEach(d=>d.people=Array.isArray(d.people)?d.people:[]);x.pay=x.pay||{};x.cur=x.cur||'₽';return x};
+try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){try{const b=localStorage.getItem(BAK);if(b){db=JSON.parse(b);lost=true}}catch(_){}}
+norm(db);
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+const strip=()=>({...db,depts:db.depts.map(d=>({...d,people:d.people.map(p=>({...p,photo:''}))}))});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Память заполнена. Сделайте копию и удалите лишние фото');return}try{localStorage.setItem(BAK,JSON.stringify(strip()))}catch(e){}};
+const stamp=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const mark=()=>{db.lastBackup=stamp();save()};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dept=()=>db.depts.find(d=>d.id===cur);
@@ -127,22 +141,59 @@ const shut=d=>{if(!d.open)return;d.classList.add('out');setTimeout(()=>{d.classL
 const show=(d,h)=>{d.innerHTML=h;if(!d.open)d.showModal()};
 const ask=(t,ok='Удалить')=>new Promise(r=>{show(dp,`<div class="pad"><h2>${esc(t)}</h2><div class="btns"><button class="btn" id="n">Отмена</button><button class="btn x" id="y">${ok}</button></div></div>`);$('n').onclick=()=>{shut(dp);r(false)};$('y').onclick=()=>{shut(dp);r(true)}});
 
-function pickDate(val,cb){
-  const t=new Date();let sel=val?pd(val):null,vw=sel?new Date(sel.getFullYear(),sel.getMonth(),1):new Date(t.getFullYear(),t.getMonth(),1),yr=false;
-  const key=d=>ym(d)+'-'+String(d.getDate()).padStart(2,'0'),sk=sel?key(sel):'',tk=key(t);
+function pickDate(val,cb,o={}){
+  const t=new Date(),Y0=o.y0||1930,Y1=o.y1||t.getFullYear()+1,p2=n=>String(n).padStart(2,'0');
+  const sel=val?pd(val):null;
+  let vw=sel?new Date(sel.getFullYear(),sel.getMonth(),1):o.start?new Date(o.start,0,1):new Date(t.getFullYear(),t.getMonth(),1),mode='d';
+  const key=d=>ym(d)+'-'+p2(d.getDate()),sk=sel?key(sel):'',tk=key(t);
   const done=v=>{shut(dp);cb(v)};
   const draw=()=>{
     let b;const Y=vw.getFullYear(),M=vw.getMonth();
-    if(yr){let c='';for(let y=t.getFullYear()+1;y>=1930;y--)c+=`<button type="button" data-y="${y}" class="${y===Y?'on':''}">${y}</button>`;b=`<div class="yrs">${c}</div>`}
+    if(mode==='y'){let c='';for(let y=Y1;y>=Y0;y--)c+=`<button type="button" data-y="${y}" class="${sel&&y===sel.getFullYear()?'on':''}">${y}</button>`;b=`<div class="yrs">${c}</div>`}
+    else if(mode==='m'){b=`<div class="mos">${MN.map((n,i)=>`<button type="button" data-m="${i}" class="${sel&&sel.getFullYear()===Y&&sel.getMonth()===i?'on':''}">${n}</button>`).join('')}</div>`}
     else{const off=(new Date(Y,M,1).getDay()+6)%7,n=new Date(Y,M+1,0).getDate();let c='<i></i>'.repeat(off);for(let d=1;d<=n;d++){const k=key(new Date(Y,M,d));c+=`<button type="button" data-k="${k}" class="${k===sk?'on':''} ${k===tk?'td':''}">${d}</button>`}
-      b=`<div class="wd">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<span>${x}</span>`).join('')}</div><div class="cg">${c}</div>`}
-    show(dp,`<div class="pad"><div class="ch"><button type="button" class="ib" id="cp" style="${yr?'visibility:hidden':''}">${I.back}</button><button type="button" class="ttl" id="ct">${yr?'Выберите год':MN[M]+' '+Y}</button><button type="button" class="ib" id="cn" style="${yr?'visibility:hidden':''}">${I.next}</button></div>${b}<div class="btns">${sel?'<button type="button" class="btn d" id="cc">Очистить</button>':''}<button type="button" class="btn" id="ctd">Сегодня</button></div></div>`);
-    $('cp').onclick=()=>{vw=new Date(Y,M-1,1);draw()};$('cn').onclick=()=>{vw=new Date(Y,M+1,1);draw()};
-    $('ct').onclick=()=>{yr=!yr;draw()};$('ctd').onclick=()=>done(tk);if(sel)$('cc').onclick=()=>done('');
+      b=`<input class="dtin" id="ti" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="ДД.ММ.ГГГГ"><div class="wd">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<span>${x}</span>`).join('')}</div><div class="cg">${c}</div>`}
+    const ttl=mode==='y'?'<span class="ttl">Выберите год</span>':`<div class="chv">${mode==='d'?`<button type="button" class="ttl" id="cm">${MN[M]}</button>`:''}<button type="button" class="ttl" id="cy">${Y}</button></div>`;
+    show(dp,`<div class="pad"><div class="ch"><button type="button" class="ib" id="cp" style="${mode==='y'?'visibility:hidden':''}">${I.back}</button>${ttl}<button type="button" class="ib" id="cn" style="${mode==='y'?'visibility:hidden':''}">${I.next}</button></div>${b}<div class="btns">${sel?'<button type="button" class="btn d" id="cc">Очистить</button>':''}<button type="button" class="btn" id="ctd">Сегодня</button></div></div>`);
+    const step=k=>{vw=mode==='m'?new Date(Y+k,M,1):new Date(Y,M+k,1);draw()};
+    $('cp').onclick=()=>step(-1);$('cn').onclick=()=>step(1);
+    $('cy').onclick=()=>{mode=mode==='y'?'d':'y';draw()};
+    if($('cm'))$('cm').onclick=()=>{mode='m';draw()};
+    $('ctd').onclick=()=>done(tk);if(sel)$('cc').onclick=()=>done('');
     dp.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>done(e.dataset.k));
-    dp.querySelectorAll('[data-y]').forEach(e=>e.onclick=()=>{vw=new Date(+e.dataset.y,M,1);yr=false;draw()});
-    const on=dp.querySelector('.yrs .on');if(on)on.scrollIntoView({block:'center'});
+    dp.querySelectorAll('[data-y]').forEach(e=>e.onclick=()=>{vw=new Date(+e.dataset.y,M,1);mode='m';draw()});
+    dp.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{vw=new Date(Y,+e.dataset.m,1);mode='d';draw()});
+    const ti=$('ti');
+    if(ti)ti.oninput=()=>{
+      const dg=ti.value.replace(/\D/g,'').slice(0,8);
+      ti.value=dg.length>4?dg.slice(0,2)+'.'+dg.slice(2,4)+'.'+dg.slice(4):dg.length>2?dg.slice(0,2)+'.'+dg.slice(2):dg;
+      if(dg.length===8){const d=+dg.slice(0,2),m=+dg.slice(2,4),y=+dg.slice(4),x=new Date(y,m-1,d);
+        if(y>=1900&&y<=2100&&x.getMonth()===m-1&&x.getDate()===d)done(y+'-'+p2(m)+'-'+p2(d));else toast('Такой даты нет')}
+    };
+    if(mode==='y'){const on=dp.querySelector(`.yrs [data-y="${Y}"]`)||dp.querySelector('.yrs .on');if(on)on.scrollIntoView({block:'center'})}
   };draw();
+}
+async function exportData(){
+  const txt=JSON.stringify(db),name='kartoteka-'+stamp()+'.json';
+  try{const f=new File([txt],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Картотека'});mark();render(false);toast('Копия отправлена');return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();mark();render(false);toast('Копия сохранена в «Загрузки»')}catch(e){copyData()}
+}
+async function copyData(){
+  try{await navigator.clipboard.writeText(JSON.stringify(db));mark();render(false);toast('Скопировано. Вставьте в заметки или чат')}
+  catch(e){toast('Не удалось скопировать')}
+}
+async function applyImport(text){
+  try{const x=JSON.parse(text);if(!x||!Array.isArray(x.depts))throw 0;norm(x);
+    const n=x.depts.reduce((s,d)=>s+d.people.length,0);
+    if(await ask(`Заменить текущие данные? В копии: отделов ${x.depts.length}, сотрудников ${n}.`,'Заменить')){db=x;save();render();toast('Данные загружены')}}
+  catch(_){toast('Данные не подходят')}
+}
+function pasteSheet(){
+  show(dlg,`<form id="f"><h2>Вставить данные</h2><label>Скопированный текст копии<textarea name="t" rows="6" placeholder="Вставьте сюда"></textarea></label><div class="btns"><button type="button" class="btn" id="cx">Отмена</button><button class="btn p">Загрузить</button></div></form>`);
+  $('cx').onclick=()=>shut(dlg);
+  $('f').onsubmit=e=>{e.preventDefault();const t=new FormData(e.target).get('t');shut(dlg);setTimeout(()=>applyImport(t),200)};
 }
 const dateField=(l,n,v)=>`<label>${l}<div class="dt" tabindex="0"><span>${v?fd(v):'Не указано'}</span>${I.cal}<input type="hidden" name="${n}" value="${v||''}"></div></label>`;
 
@@ -175,7 +226,9 @@ function render(fx=true){
     const bd=rs.filter(({p})=>p.birth).map(({p,d})=>({p,d,n:daysTo(p)})).filter(x=>x.n<=30).sort((a,b)=>a.n-b.n).slice(0,6);
     h=`<div class="grid"><div class="card"><span class="mu">Сотрудников</span><div class="big sm">${rs.length}</div></div><div class="card"><span class="mu">Отделов</span><div class="big sm">${db.depts.length}</div></div><div class="card"><span class="mu">Средний возраст</span><div class="big sm">${avg}</div></div><div class="card"><span class="mu">Фонд за ${MN[+mon.split('-')[1]-1].toLowerCase()}</span><div class="big sm">${mny(fund)}</div></div></div>`;
     h+='<div class="sec">Ближайшие дни рождения</div>'+(bd.length?bd.map(({p,d,n})=>prow(p,d,`<span class="st ${n?'':'ok'}">${n?'через '+n+' дн.':'Сегодня'}</span>`,pd(p.birth).toLocaleDateString('ru-RU',{day:'numeric',month:'long'}))).join(''):'<div class="mu" style="padding:0 4px 8px">В ближайшие 30 дней нет. Даты рождения указываются в карточке сотрудника.</div>');
-    h+=`<div class="sec">Настройки</div><div class="card" style="display:flex;flex-direction:column;gap:10px"><label>Валюта<input id="cur" maxlength="5" value="${esc(db.cur)}"></label><button class="btn" id="ex">Сохранить копию в файл</button><button class="btn" id="im">Загрузить из файла</button><input type="file" id="imf" accept=".json,application/json" hidden></div>`;
+    const lb=db.lastBackup,dys=lb?Math.floor((Date.now()-pd(lb))/864e5):null,kb=Math.round(JSON.stringify(db).length/1024);
+    h+=`<div class="sec">Сохранность данных</div><div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="mu">${lb?'Последняя копия: '+fd(lb)+(dys>0?' ('+dys+' дн. назад)':' (сегодня)'):'Резервной копии ещё не было'}<br>Занято памяти: ${kb} КБ из ~5000</div><button class="btn" id="ex">Отправить / сохранить копию</button><button class="btn" id="cp">Скопировать данные</button><button class="btn" id="im">Загрузить из файла</button><button class="btn" id="pa">Вставить данные</button><input type="file" id="imf" accept=".json,application/json,text/plain" hidden></div><div class="sec">Настройки</div><div class="card"><label>Валюта<input id="cur" maxlength="5" value="${esc(db.cur)}"></label></div>`;
+    if(rs.length&&(dys===null||dys>=14))h=`<div class="card" style="border-color:var(--danger)"><b>Сделайте резервную копию</b><div class="mu">${lb?'Копии не было уже '+dys+' дн.':'Копии ещё не было.'} Отправьте её себе в Telegram или на почту, чтобы не потерять данные.</div></div>`+h;
   }
   hd.innerHTML=head;app.innerHTML=h;
   app.querySelectorAll('main>*').forEach((e,i)=>e.style.animationDelay=Math.min(i,9)*30+'ms');
@@ -189,8 +242,10 @@ function render(fx=true){
   if(b('pm')){b('pm').onclick=()=>mv(-1);b('nm').onclick=()=>mv(1)}
   if(b('allp'))b('allp').onclick=()=>{db.pay[mon]=db.pay[mon]||{};all().forEach(({p})=>{db.pay[mon][p.id]={...rec(p),paid:true}});save();render();toast('Все отмечены как выплаченные')};
   if(b('cur'))b('cur').oninput=e=>{db.cur=e.target.value||'₽';save()};
-  if(b('ex'))b('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='kartoteka-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Копия сохранена')};
-  if(b('im')){b('im').onclick=()=>b('imf').click();b('imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.depts))throw 0;if(await ask('Заменить текущие данные данными из файла?','Заменить')){db=x;db.pay=db.pay||{};db.cur=db.cur||'₽';save();render();toast('Данные загружены')}}catch(_){toast('Файл не подходит')}};r.readAsText(f)}}
+  if(b('ex'))b('ex').onclick=exportData;
+  if(b('cp'))b('cp').onclick=copyData;
+  if(b('pa'))b('pa').onclick=pasteSheet;
+  if(b('im')){b('im').onclick=()=>b('imf').click();b('imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>applyImport(r.result);r.readAsText(f);e.target.value=''}}
 }
 $('nav').innerHTML=[['d','Отделы',I.folder],['p','Ведомость',I.wallet],['s','Сводка',I.chart]].map(([t,l,i])=>`<button class="tab" data-t="${t}"><i>${i}</i><span>${l}</span></button>`).join('');
 document.querySelectorAll('.tab').forEach(e=>e.onclick=()=>{tab=e.dataset.t;cur=null;q='';render();scrollTo(0,0)});
@@ -218,8 +273,8 @@ function personSheet(d,p){
   const f=$('f'),pv=()=>{$('pv').innerHTML=avatar({photo,first:f.first.value,last:f.last.value})};pv();
   f.first.oninput=pv;f.last.oninput=pv;
   $('cx').onclick=()=>shut(dlg);$('pick').onclick=()=>$('file').click();$('rm').onclick=()=>{photo='';pv()};
-  f.querySelectorAll('.dt').forEach(e=>e.onclick=()=>{const i=e.querySelector('input');pickDate(i.value,x=>{i.value=x;e.firstElementChild.textContent=x?fd(x):'Не указано'})});
-  $('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image(),u=URL.createObjectURL(fl);img.onload=()=>{const s=Math.min(1,480/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.8);URL.revokeObjectURL(u);pv()};img.src=u};
+  f.querySelectorAll('.dt').forEach(e=>e.onclick=()=>{const i=e.querySelector('input');const T=new Date().getFullYear(),o=i.name==='birth'?{y0:1940,y1:T-14,start:T-30}:{y0:1990};pickDate(i.value,x=>{i.value=x;e.firstElementChild.textContent=x?fd(x):'Не указано'},o)});
+  $('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image(),u=URL.createObjectURL(fl);img.onload=()=>{const s=Math.min(1,400/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.75);URL.revokeObjectURL(u);pv()};img.src=u};
   if(!nw)$('del').onclick=async()=>{if(await ask('Удалить сотрудника?')){d.people=d.people.filter(x=>x!==p);save();shut(dlg);render()}};
   f.onsubmit=e=>{e.preventDefault();const o=Object.fromEntries(new FormData(f));Object.keys(o).forEach(k=>o[k]=o[k].trim());o.photo=photo;if(nw)d.people.push({id:uid(),...o});else Object.assign(p,o);save();shut(dlg);render();toast('Сохранено')};
 }
@@ -237,6 +292,7 @@ function paySheet(p){
   f.onsubmit=e=>{e.preventDefault();p.salary=f.salary.value;db.pay[mon]=db.pay[mon]||{};db.pay[mon][p.id]={bonus:f.bonus.value,ded:f.ded.value,paid:f.paid.checked};save();shut(dlg);render();toast('Сохранено')};
 }
 render();
+if(lost)toast('Основные данные повреждены. Восстановлена копия без фото');
 </script>
 </body>
 </html>
